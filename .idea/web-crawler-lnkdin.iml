@@ -5,4 +5,11 @@
     <orderEntry type="jdk" jdkName="Pipenv (web-crawler-lnkdin) (2)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
+  <component name="PyNamespacePackagesService">
+    <option name="namespacePackageFolders">
+      <list>
+        <option value="$MODULE_DIR$/third_parties" />
+      </list>
+    </option>
+  </component>
 </module>
