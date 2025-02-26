@@ -14,13 +14,18 @@ from langchain.agents import (
     AgentExecutor,
 )
 from langchain import hub
-
+from tools.tools import get_profile_url_tavily
 
 
 def lookup(name: str) -> str:
     # return "https://gist.githubusercontent.com/emarco177/859ec7d786b45d8e3e3f688c6c9139d8/raw/5eaf8e46dc29a98612c8fe0c774123a7a2ac4575/eden-marco-scrapin.json"
+    # llm = ChatOpenAI(
+    #     temperature=0,
+    #     model_name="gpt-3.5-turbo",
+    # )
+
     llm = ChatOllama(model="llama3.2")
-    template="""Given the full name {name_of_person} I want you to get it me a link to their LinkedIn profile page,
+    template="""Given the full name {name_of_person} I want you to get it me a link to their LinkedIn profile page.
     Your name should contains only URL
     """
 
@@ -48,5 +53,5 @@ def lookup(name: str) -> str:
 
 
 if  __name__ == "__main__":
-    linkedin_url = lookup(name="Sanket Shahane")
+    linkedin_url = lookup(name="Eden Marko")
     print(linkedin_url)
