@@ -1,0 +1,52 @@
+import os
+from dotenv import load_dotenv
+
+from tools.tools import get_profile_url_tavily
+
+load_dotenv()
+
+from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
+from langchain_core.prompts import PromptTemplate
+from langchain_core.tools import Tool
+from langchain.agents import (
+    create_react_agent,
+    AgentExecutor,
+)
+from langchain import hub
+
+
+
+def lookup(name: str) -> str:
+    # return "https://gist.githubusercontent.com/emarco177/859ec7d786b45d8e3e3f688c6c9139d8/raw/5eaf8e46dc29a98612c8fe0c774123a7a2ac4575/eden-marco-scrapin.json"
+    llm = ChatOllama(model="llama3.2")
+    template="""Given the full name {name_of_person} I want you to get it me a link to their LinkedIn profile page,
+    Your name should contains only URL
+    """
+
+    prompt_template = PromptTemplate(
+        template=template, input_variables=["name_of_person"]
+    )
+    tools_for_agent = [
+        Tool(
+            name="Crawl Google 4 linkedin profile page",
+            func=get_profile_url_tavily,
+            description="useful for when you need get the LinkedIn Page URL"
+        )
+    ]
+
+    react_prompt = hub.pull("hwchase17/react")
+    agent = create_react_agent(llm=llm, tools=tools_for_agent, prompt=react_prompt)
+    agent_executor = AgentExecutor(agent=agent, tools=tools_for_agent, verbose=True)
+
+    result = agent_executor.invoke(
+        input={"input": prompt_template.format_prompt(name_of_person=name)}
+    )
+
+    linkedin_profile_url = result["output"]
+    return linkedin_profile_url
+
+
+if  __name__ == "__main__":
+    linkedin_url = lookup(name="Sanket Shahane")
+    print(linkedin_url)
