@@ -18,20 +18,11 @@ from tools.tools import get_profile_url_tavily
 
 
 def lookup(name: str) -> str:
-    # return "https://gist.githubusercontent.com/emarco177/859ec7d786b45d8e3e3f688c6c9139d8/raw/5eaf8e46dc29a98612c8fe0c774123a7a2ac4575/eden-marco-scrapin.json"
-    # llm = ChatOpenAI(
-    #     temperature=0,
-    #     model_name="gpt-3.5-turbo",
-    # )
-
     llm = ChatOllama(model="llama3.2")
-    template="""Given the full name {name_of_person} I want you to get it me a link to their LinkedIn profile page.
-    Your name should contains only URL
-    """
 
-    prompt_template = PromptTemplate(
-        template=template, input_variables=["name_of_person"]
-    )
+    # The issue is here - you're using a custom prompt but not passing it correctly to the agent
+    # We'll modify how the input is formatted and passed to the agent
+
     tools_for_agent = [
         Tool(
             name="Crawl Google 4 linkedin profile page",
@@ -40,18 +31,31 @@ def lookup(name: str) -> str:
         )
     ]
 
+    # Pull the ReAct prompt from the hub
     react_prompt = hub.pull("hwchase17/react")
-    agent = create_react_agent(llm=llm, tools=tools_for_agent, prompt=react_prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools_for_agent, verbose=True)
 
+    # Create the agent
+    agent = create_react_agent(llm=llm, tools=tools_for_agent, prompt=react_prompt)
+
+    # Add handle_parsing_errors=True to handle the format error
+    agent_executor = AgentExecutor(
+        agent=agent,
+        tools=tools_for_agent,
+        verbose=True,
+        handle_parsing_errors=True  # Add this parameter to handle parsing errors
+    )
+
+    # Simplify the input to the agent
     result = agent_executor.invoke(
-        input={"input": prompt_template.format_prompt(name_of_person=name)}
+        {
+            "input": f"Given the full name {name}, I want you to get me a link to their LinkedIn profile page. Return only the URL."
+        }
     )
 
     linkedin_profile_url = result["output"]
     return linkedin_profile_url
 
 
-if  __name__ == "__main__":
-    linkedin_url = lookup(name="Eden Marko")
+if __name__ == "__main__":
+    linkedin_url = lookup(name="Eden Marko Udemy")
     print(linkedin_url)

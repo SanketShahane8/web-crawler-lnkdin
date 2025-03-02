@@ -13,16 +13,19 @@ def scrape_linkedin_profile(linkedin_profile_url: str, mock: bool = False):
     :param mock:
     :return:
     """
-    if mock:
-        linkedin_profile_url = linkedin_profile_url
-        response = requests.get(linkedin_profile_url, timeout=10)
-    else:
-        api_endpoint = "https://api.scrapin.io/enrichment/profile"
-        params = {
-            "apikey": os.environ["SCRAPIN_API_KEY"],
-            "linkedInUrl": linkedin_profile_url,
-        }
-        response = requests.get(api_endpoint, params=params, timeout=10)
+    linkedin_profile_url = linkedin_profile_url
+    response = requests.get(linkedin_profile_url, timeout=10)
+
+    # if mock:
+    #     linkedin_profile_url = linkedin_profile_url
+    #     response = requests.get(linkedin_profile_url, timeout=10)
+    # else:
+    #     api_endpoint = "https://api.scrapin.io/enrichment/profile"
+    #     params = {
+    #         "apikey": os.environ["SCRAPIN_API_KEY"],
+    #         "linkedInUrl": linkedin_profile_url,
+    #     }
+    #     response = requests.get(api_endpoint, params=params, timeout=10)
 
     data = response.json().get("person")
     return data
